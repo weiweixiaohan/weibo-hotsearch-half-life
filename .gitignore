@@ -1,0 +1,20 @@
+# 大 CSV（放清华云盘）
+weibo_hotsearch_*.csv
+weibo_hotsearch_data_class.csv
+weibo_bi_exponential_features.csv
+weibo_factor_scores.csv
+
+# 中间缓存
+checkpoint_*.json
+*.npz
+classification_cache.json
+
+# 图片
+*.png
+
+# 系统
+.DS_Store
+.claude/
+__pycache__/
+*.pyc
+.env

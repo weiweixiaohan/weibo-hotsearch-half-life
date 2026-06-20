@@ -6,38 +6,33 @@ import seaborn as sns
 from scipy.optimize import curve_fit
 import warnings # 【新增】导入警告控制模块
 
-# ============================================================
+
 # 1. 环境与中文字体配置
-# ============================================================
 plt.rcParams['font.sans-serif'] = ['SimHei']  # Windows 环境防乱码
 plt.rcParams['axes.unicode_minus'] = False     # 正常显示负号
 
 INPUT_PURE_CSV = "weibo_hotsearch_data_class.csv"
 
-# ============================================================
+
 # 2. 定义双指数衰减数学模型
-# ============================================================
 def bi_exponential_model(t, A, alpha, B, beta):
     return A * np.exp(-alpha * t) + B * np.exp(-beta * t)
 
-# ============================================================
+
 # 3. 核心统计与拟合引擎
-# ============================================================
 def analyze_pure_data():
     script_dir = os.path.dirname(os.path.abspath(__file__)) if '__file__' in locals() else os.getcwd()
     full_input_path = os.path.join(script_dir, INPUT_PURE_CSV)
     
     if not os.path.exists(full_input_path):
-        print(f"❌ 找不到新总表文件，请检查是否生成在: {full_input_path}")
+        print(f"找不到新总表文件")
         return
 
     df = pd.read_csv(full_input_path, encoding="utf-8-sig")
     heat_cols = [col for col in df.columns if col.startswith("heat_")]
     
     fit_results = []    
-    print("🚀 正在对合并去重后的数据进行逐条双指数动力学拟合（数值鲁棒性升级版）...")
     
-    # 【核心防御】将 scipy 弹出的协方差无法估计警告转化为异常，从而用 try-except 完美捕捉并跳过
     warnings.filterwarnings('error', category=RuntimeWarning)
     from scipy.optimize import OptimizeWarning
     warnings.filterwarnings('error', category=OptimizeWarning)
@@ -96,7 +91,6 @@ def analyze_pure_data():
                     "拟合优度_R2": r_squared
                 })
         except (Exception, RuntimeWarning, OptimizeWarning):
-            # 一旦发生无法收敛、奇异矩阵、或触发警告的非自然噪声词条，直接温柔跳过，绝不卡死
             continue
 
     # 恢复正常的警告设置，避免影响后续绘图
@@ -104,18 +98,17 @@ def analyze_pure_data():
 
     features_df = pd.DataFrame(fit_results)
     if features_df.empty:
-        print("❌ 糟糕，没有有效的词条通过拟合过滤，请检查输入数据！")
+        print("没有有效的词条通过拟合过滤")
         return
         
     output_detail_path = os.path.join(script_dir, "weibo_bi_exponential_features.csv")
     features_df.to_csv(output_detail_path, index=False, encoding="utf-8-sig")
-    print(f"💾 已将全量词条的[完全体双指数特征表]导出至：{output_detail_path}")
+    print(f"已将全量词条的完全体双指数特征表导出至：{output_detail_path}")
     
-    # ============================================================
-    # 4. 展示基于全新精细化分类的动力学控制特征表格
-    # ============================================================
-    print("\n📊 " + "="*35 + " 动力学对比分析矩阵（完全体） " + "="*35)
-    print("📈 [大作业核心数据表：基于新大模型的事件类型双指数控制参数及权重统计]")
+    
+    # 4. 展示基于全新精细化分类的动力学控制特征表格 
+    print("\n" + "="*35 + " 动力学对比分析矩阵（完全体） " + "="*35)
+    print(" [大作业核心数据表：基于新大模型的事件类型双指数控制参数及权重统计]")
     print("="*110)
     
     summary_table = features_df.groupby("事件类型").agg(
@@ -138,10 +131,8 @@ def analyze_pure_data():
     }))
     print("="*110)
     
-    # ============================================================
+    
     # 5. 绘制精细标签交叉对比交叉箱线图（Boxplot）
-    # ============================================================
-    print("🎨 正在绘制多标签动力学特征学术对比图表...")
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
     
     # 左图：Alpha 箱线图
@@ -162,7 +153,7 @@ def analyze_pure_data():
     plot_path = os.path.join(script_dir, "事件类型_动力学特征完全体对比图.png")
     plt.savefig(plot_path, dpi=300)
     plt.close()
-    print(f"🎉 鲁棒版双动力学交叉箱线图绘制成功！已妥善输出至：\n👉 {plot_path}")
+    print(f"双动力学交叉箱线图绘制成功！已妥善输出至{plot_path}")
 
 if __name__ == "__main__":
     analyze_pure_data()

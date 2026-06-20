@@ -23,9 +23,8 @@ def parse_duration(text):
         s=int(text.split('分')[1].split('秒')[0]); return h*3600+m*60+s
     except: return 0
 
-# ============================================================
+
 # Phase 1: 加载
-# ============================================================
 print("加载数据 ...", flush=True)
 records = []
 with open(MASTER_CSV, encoding='utf-8-sig') as f:
@@ -53,9 +52,9 @@ with open(MASTER_CSV, encoding='utf-8-sig') as f:
 
 print(f"保留: {len(records)} 条", flush=True)
 
-# ============================================================
+
 # Phase 2: 归一化
-# ============================================================
+
 print("归一化 ...", flush=True)
 grid = np.linspace(0,100,N_POINTS)
 matrix_raw = np.zeros((len(records), N_POINTS))
@@ -67,9 +66,9 @@ for idx,(_,_,_,_,heats) in enumerate(records):
 scaler = TimeSeriesScalerMeanVariance()
 matrix_scaled = scaler.fit_transform(matrix_raw).squeeze()
 
-# ============================================================
+
 # Phase 3: k=3 聚类
-# ============================================================
+
 print(f"DTW KMeans k={N_CLUSTERS} ...", flush=True)
 if os.path.exists(LABELS_CSV):
     print("  → 从已有 CSV 加载标签", flush=True)
@@ -91,9 +90,9 @@ counts = Counter(labels)
 print(f"分布: {dict(sorted(counts.items()))}", flush=True)
 print(f"标签已保存: {LABELS_CSV}", flush=True)
 
-# ============================================================
+
 # Phase 4: 可视化
-# ============================================================
+
 centroids_smooth = np.array([savgol_filter(c, window_length=11, polyorder=3) for c in centroids])
 centroids_raw = centroids_smooth * scaler.std + scaler.mu
 centroids_scaled = centroids_smooth

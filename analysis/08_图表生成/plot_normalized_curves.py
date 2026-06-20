@@ -11,9 +11,8 @@ matplotlib.rcParams['axes.unicode_minus'] = False
 
 CSV_PATH = "heat_curves_normalized.csv"
 
-# ============================================================
+
 # 1. 加载数据
-# ============================================================
 with open(CSV_PATH, encoding='utf-8-sig') as f:
     reader = csv.DictReader(f)
     rows = list(reader)
@@ -37,9 +36,8 @@ matrix = np.array(matrix)
 print(f"词条数: {matrix.shape[0]}, 时间点数: {matrix.shape[1]}")
 print(f"时间范围: {grid[0]}~{grid[-1]} 分钟")
 
-# ============================================================
+
 # 2. 统计曲线
-# ============================================================
 # 每个时间点的中位数、P25、P75（忽略 NaN）
 def masked_percentile(arr, p):
     return np.array([np.nanpercentile(arr[:, i], p)
@@ -54,12 +52,11 @@ p90 = masked_percentile(matrix, 90)
 # 每个时间点的有效词条数（还在榜的）
 alive = np.sum(~np.isnan(matrix), axis=0)
 
-# ============================================================
+
 # 3. 画图
-# ============================================================
 fig, axes = plt.subplots(2, 2, figsize=(16, 11))
 
-# --- (a) 中位数 + IQR 包络线 ---
+# (a) 中位数 + IQR 包络线 
 ax = axes[0, 0]
 ax.fill_between(grid, p25, p75, alpha=0.25, color='steelblue', label='P25–P75')
 ax.fill_between(grid, p10, p90, alpha=0.12, color='steelblue', label='P10–P90')
@@ -70,7 +67,7 @@ ax.set_title(f'热度衰减曲线（中位数 ± 分位数带, n={matrix.shape[0
 ax.legend(fontsize=8)
 ax.set_xlim(0, grid[-1])
 
-# --- (b) 选 30 条个体曲线覆盖在统计曲线上 ---
+# (b) 选 30 条个体曲线覆盖在统计曲线上 
 ax = axes[0, 1]
 rng = np.random.default_rng(42)
 idx = rng.choice(matrix.shape[0], min(30, matrix.shape[0]), replace=False)
@@ -84,7 +81,7 @@ ax.set_title(f'个体曲线 + 中位数（随机 30 条）')
 ax.legend(fontsize=8)
 ax.set_xlim(0, grid[-1])
 
-# --- (c) 存活率曲线 ---
+# (c) 存活率曲线 
 ax = axes[1, 0]
 alive_pct = alive / matrix.shape[0] * 100
 ax.plot(grid, alive_pct, 'darkgreen', linewidth=2)
@@ -100,7 +97,7 @@ ax.set_title('词条在榜存活曲线')
 ax.set_xlim(0, grid[-1])
 ax.set_ylim(0, 105)
 
-# --- (d) 热度热力图（前 60 条，按在榜时长排序）---
+# (d) 热度热力图（前 60 条，按在榜时长排序）
 ax = axes[1, 1]
 n_show = min(60, matrix.shape[0])
 # 计算每条词条的在榜时长（最后一个非 NaN 的时间点）

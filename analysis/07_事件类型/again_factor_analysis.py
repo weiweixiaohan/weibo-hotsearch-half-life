@@ -20,9 +20,8 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-# ============================================================
+
 # 0. 配置
-# ============================================================
 DATA_PATH    = "weibo_hotsearch_data_class.csv"
 CLUSTER_PATH = "dtw_cluster_labels_k3.csv"
 N_FACTORS    = 4
@@ -45,9 +44,8 @@ FEAT_LABELS = {
 FACTOR_NAMES = ["F1·爆发强度", "F2·峰值节律", "F3·时长时段", "F4·衰减韧性"]
 
 
-# ============================================================
+
 # 1. 数据加载与合并
-# ============================================================
 def load_data():
     df = pd.read_csv(DATA_PATH)
     df_cl = pd.read_csv(CLUSTER_PATH)
@@ -56,9 +54,9 @@ def load_data():
     return df
 
 
-# ============================================================
+
 # 2. 特征工程
-# ============================================================
+
 def engineer_features(df):
     # 基础字段
     df["peak_heat"]   = df["热度最大值"]
@@ -97,9 +95,9 @@ def engineer_features(df):
     return df_clean, feat_cols
 
 
-# ============================================================
+
 # 3. 适合性检验
-# ============================================================
+
 def check_fa_suitability(X_std, feat_cols):
     n, p  = X_std.shape
     R     = np.corrcoef(X_std.T)
@@ -124,9 +122,8 @@ def check_fa_suitability(X_std, feat_cols):
     return R, chi2, pval, kmo
 
 
-# ============================================================
+
 # 4. Varimax 旋转
-# ============================================================
 def varimax_rotation(loadings, max_iter=1000, tol=1e-9):
     p, k      = loadings.shape
     rotation  = np.eye(k)
@@ -148,9 +145,8 @@ def varimax_rotation(loadings, max_iter=1000, tol=1e-9):
     return loadings @ rotation
 
 
-# ============================================================
+
 # 5. 主因子分析
-# ============================================================
 def run_factor_analysis(X_std, R, feat_cols, n_factors=N_FACTORS):
     eigenvalues, eigenvectors = eigh(R)
     idx         = np.argsort(eigenvalues)[::-1]
@@ -192,9 +188,8 @@ def run_factor_analysis(X_std, R, feat_cols, n_factors=N_FACTORS):
     return L_rot, loadings_df, communalities, eigenvalues
 
 
-# ============================================================
+
 # 6. 因子得分
-# ============================================================
 def compute_factor_scores(X_std, R, L_rot, clusters):
     scores    = X_std @ inv(R) @ L_rot
     score_df  = pd.DataFrame(scores, columns=[f"F{i+1}" for i in range(L_rot.shape[1])])
@@ -215,9 +210,8 @@ def compute_factor_scores(X_std, R, L_rot, clusters):
     return score_df, mean_scores
 
 
-# ============================================================
+
 # 7. 可视化
-# ============================================================
 def plot_all(loadings_df, score_df, mean_scores, eigenvalues, communalities, feat_cols):
     plt.rcParams["font.family"]   = ["SimHei", "Arial Unicode MS", "DejaVu Sans"]
     plt.rcParams["axes.unicode_minus"] = False
@@ -226,7 +220,7 @@ def plot_all(loadings_df, score_df, mean_scores, eigenvalues, communalities, fea
     fig.suptitle("微博热搜生命周期因子分析（主轴因子法 + Varimax旋转，k=3 DTW聚类）",
                  fontsize=15, fontweight="bold", y=0.98)
 
-    # ── 子图布局 ──────────────────────────────────────────────
+    # 子图布局 
     gs = fig.add_gridspec(3, 3, hspace=0.40, wspace=0.35)
     ax1 = fig.add_subplot(gs[0, :2])   # 因子载荷热图
     ax2 = fig.add_subplot(gs[0, 2])    # 碎石图
@@ -238,7 +232,7 @@ def plot_all(loadings_df, score_df, mean_scores, eigenvalues, communalities, fea
 
     feat_cn = [FEAT_LABELS[c] for c in feat_cols]
 
-    # ── 1. 因子载荷热图 ───────────────────────────────────────
+    # 1. 因子载荷热图 
     ld_vals = loadings_df.values
     im = ax1.imshow(ld_vals, cmap="RdBu_r", vmin=-1, vmax=1, aspect="auto")
     ax1.set_xticks(range(N_FACTORS))
@@ -253,7 +247,7 @@ def plot_all(loadings_df, score_df, mean_scores, eigenvalues, communalities, fea
             ax1.text(j, i, f"{v:.2f}", ha="center", va="center",
                      fontsize=9, color="white" if abs(v) > 0.5 else "black")
 
-    # ── 2. 碎石图 ─────────────────────────────────────────────
+    # 2. 碎石图 
     k_show = min(8, len(eigenvalues))
     ax2.plot(range(1, k_show + 1), eigenvalues[:k_show], "o-", color="#378ADD", lw=2, ms=7)
     ax2.axhline(1, color="gray", ls="--", lw=1, label="特征值=1")
@@ -266,7 +260,7 @@ def plot_all(loadings_df, score_df, mean_scores, eigenvalues, communalities, fea
     ax2.legend(fontsize=9)
     ax2.grid(axis="y", alpha=0.3)
 
-    # ── 3. 聚类×因子得分分组柱状图 ───────────────────────────
+    # 3. 聚类×因子得分分组柱状图 
     x      = np.arange(N_FACTORS)
     width  = 0.25
     for ci, c in enumerate([0, 1, 2]):
@@ -281,7 +275,7 @@ def plot_all(loadings_df, score_df, mean_scores, eigenvalues, communalities, fea
     ax3.legend(fontsize=9, loc="upper right")
     ax3.grid(axis="y", alpha=0.3)
 
-    # ── 4. 共同度条形图 ───────────────────────────────────────
+    # 4. 共同度条形图
     colors_comm = ["#378ADD" if h >= 0.7 else "#EF9F27" for h in communalities]
     ax4.barh(feat_cn, communalities, color=colors_comm, alpha=0.8)
     ax4.axvline(0.5, color="gray", ls="--", lw=1, label="0.5阈值")
@@ -292,7 +286,7 @@ def plot_all(loadings_df, score_df, mean_scores, eigenvalues, communalities, fea
     ax4.legend(fontsize=8)
     ax4.grid(axis="x", alpha=0.3)
 
-    # ── 5 & 6. 散点图（F1/F2，F3/F4）────────────────────────
+    # 5 & 6. 散点图（F1/F2，F3/F4）
     for ax, (fi, fj) in [(ax5, (0, 1)), (ax6, (2, 3))]:
         sample = score_df.sample(min(800, len(score_df)), random_state=RANDOM_STATE)
         for c in [0, 1, 2]:
@@ -307,7 +301,7 @@ def plot_all(loadings_df, score_df, mean_scores, eigenvalues, communalities, fea
         ax.legend(fontsize=8, markerscale=1.5)
         ax.grid(alpha=0.2)
 
-    # ── 7. 均值得分热图 ───────────────────────────────────────
+    # 7. 均值得分热图 
     heat_data = mean_scores.values
     im7 = ax7.imshow(heat_data, cmap="RdBu_r", vmin=-1, vmax=1, aspect="auto")
     ax7.set_xticks(range(N_FACTORS))
@@ -327,9 +321,8 @@ def plot_all(loadings_df, score_df, mean_scores, eigenvalues, communalities, fea
     plt.show()
 
 
-# ============================================================
+
 # 8. 主流程
-# ============================================================
 def main():
     print("=" * 60)
     print("微博热搜生命周期因子分析")
@@ -369,7 +362,7 @@ def main():
     out.to_csv("weibo_factor_scores.csv", index=False, encoding="utf-8-sig")
     print("因子得分已保存为 weibo_factor_scores.csv")
 
-    print("\n=== 聚类命名建议 ===")
+    print("\n=== 聚类命名 ===")
     print("  C0 ：高峰值、快衰减、晚间爆发（F1低、F3低）")
     print("  C1：慢热、峰值靠后、日午上榜（F2高）")
     print("  C2 ：低峰值、韧性强、白天上榜（F3高、F4低）")

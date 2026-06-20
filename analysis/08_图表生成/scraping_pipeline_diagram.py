@@ -13,9 +13,8 @@ ax.set_xlim(0, 16)
 ax.set_ylim(0, 5)
 ax.axis('off')
 
-# ============================================================
+
 # 六步卡片
-# ============================================================
 steps = [
     {
         'title': '① API 逆向',
@@ -90,17 +89,17 @@ for i, step in enumerate(steps):
         )
         ax.add_patch(arrow)
 
-# ============================================================
+
 # 底部技术栈
-# ============================================================
+
 tech_y = 0.9
 ax.text(8, tech_y, '技术栈：Python 3 ｜ aiohttp ｜ asyncio ｜ pycryptodome ｜ CryptoJS ｜ AES-128-ECB ｜ Base64',
         ha='center', fontsize=9, color='#7f8c8d',
         bbox=dict(boxstyle='round,pad=0.3', facecolor='#ecf0f1', edgecolor='#bdc3c7', alpha=0.8))
 
-# ============================================================
+
 # 顶部统计
-# ============================================================
+
 stats_y = 4.4
 ax.text(8, stats_y, '数据规模：7 年 × 500 条/年 = ~3500 条原始词条 → 2478 条清洗后有效',
         ha='center', fontsize=10, color='#2c3e50', fontweight='bold')

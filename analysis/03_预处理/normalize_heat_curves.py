@@ -69,7 +69,7 @@ print(f"剔除 在榜 >{MAX_DUR_HOURS}h: {len(dropped_dur)}")
 print(f"纳入归一化: {len(curves)} 条")
 
 
-# 2. 时间归一化 & 统一网格插值
+# 2. 时间归一化，统一网格插值
 
 grid_minutes = np.arange(0, GRID_END_MIN + GRID_STEP_MIN, GRID_STEP_MIN)
 print(f"网格: {len(grid_minutes)} 个点, 间隔 {GRID_STEP_MIN}min, 终点 {GRID_END_MIN}min")

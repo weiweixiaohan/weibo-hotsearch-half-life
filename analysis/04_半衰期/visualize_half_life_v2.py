@@ -10,11 +10,10 @@ matplotlib.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'SimHei', 'STHeiti
 matplotlib.rcParams['axes.unicode_minus'] = False
 
 CSV_PATH = "weibo_hotsearch_2019.csv"
-MAX_HL_HOURS = 120   # 半衰期上限
-MAX_DUR_HOURS = 300  # 在榜时长上限
+MAX_HL_HOURS = 120   
+MAX_DUR_HOURS = 300  
 
 
-# 1. 加载 + 过滤
 
 all_rows = []
 with open(CSV_PATH, encoding='utf-8-sig') as f:
@@ -50,7 +49,6 @@ hl = [r['half_life'] for r in rows]
 hl_hours = [r['hl_hours'] for r in rows]
 
 
-# 2. 基础统计
 
 med = np.median(hl_hours)
 print(f"\n半衰期统计 (n={len(hl)}):")
@@ -63,7 +61,6 @@ print(f"  min={min(hl)/60:.0f}分钟  "
       f"max={max(hl)/3600:.1f}h")
 
 
-# 3. 可视化
 
 fig, axes = plt.subplots(2, 3, figsize=(18, 11))
 

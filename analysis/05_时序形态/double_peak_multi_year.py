@@ -119,9 +119,7 @@ for year in ['2019', '2023', '2024', '2025']:
               f"次{r['second_ts'][5:16]} {r['second_heat']:>8.0f}  "
               f"{r['gap_min']:>5.0f}分 {r['ratio']:.2f}")
 
-# ============================================================
 # 输出汇总 CSV
-# ============================================================
 out_path = f'{BASE}/second_wave_all_years.csv'
 with open(out_path, 'w', newline='', encoding='utf-8-sig') as f:
     writer = csv.DictWriter(f, fieldnames=[

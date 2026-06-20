@@ -21,9 +21,8 @@ def classify(hour):
     return 0
 
 
-# ============================================================
+
 # 1. 加载数据
-# ============================================================
 print("加载 master CSV ...")
 records = []
 with open(MASTER_CSV, encoding='utf-8-sig') as f:
@@ -59,9 +58,8 @@ type_counts = Counter(r['etype'] for r in records)
 top_types = [t for t, _ in type_counts.most_common(10)]
 print(f"\nTop 10 事件类型: {[(t, type_counts[t]) for t in top_types]}")
 
-# ============================================================
+
 # 2. 半衰期 × 事件类型
-# ============================================================
 print(f"\n{'='*60}")
 print("半衰期 × 事件类型 统计分析")
 print(f"{'='*60}")
@@ -93,9 +91,8 @@ for t in top_types:
     vals = groups_hl[t]
     print(f"  {t}: median={np.median(vals):.1f}, mean={np.mean(vals):.1f}, n={len(vals)}")
 
-# ============================================================
+
 # 3. 启动时段 × 事件类型
-# ============================================================
 print(f"\n{'='*60}")
 print("启动时段 × 事件类型")
 print(f"{'='*60}")
@@ -113,9 +110,8 @@ for ci, t in enumerate(top_types):
     print(f"  {t:<10s} {slot_pct[0,ci]:5.1f}% {slot_pct[1,ci]:5.1f}% "
           f"{slot_pct[2,ci]:5.1f}% {slot_pct[3,ci]:5.1f}%")
 
-# ============================================================
+
 # 4. 可视化 (1×2)
-# ============================================================
 fig, axes = plt.subplots(1, 2, figsize=(18, 7))
 colors_types = plt.cm.tab10(np.linspace(0, 1, len(top_types)))
 

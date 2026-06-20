@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 from openai import OpenAI
 
-# ---- 配置 ----
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url=os.getenv("OPENAI_BASE_URL"))
 CANDIDATE_CATEGORIES = "【社会民生, 娱乐八卦, 时政要闻, 科技数码, 体育赛事, 医疗健康, 文化内容，教育问题, 影视综艺, 游戏电竞, 商业财经, 时尚美妆】"
 BATCH_SIZE = 50
@@ -12,7 +12,7 @@ MAX_RETRIES = 3
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-# ---- Prompt ----
+#  Prompt 
 def get_classification_prompt(batch_topics, candidate_categories):
     return f"""你是一个新闻文本分类专家。请将以下微博热搜词条精准归类到13个标准标签。
 
@@ -43,7 +43,7 @@ def get_classification_prompt(batch_topics, candidate_categories):
 【待分类词条】
 {json.dumps(batch_topics, ensure_ascii=False)}"""
 
-# ---- 1. 合并多年 CSV ----
+#  1. 合并多年 CSV 
 target_files = [
     "weibo_hotsearch_2019.csv", "weibo_hotsearch_2020_2022.csv",
     "weibo_hotsearch_2023.csv", "weibo_hotsearch_2024.csv", "weibo_hotsearch_2025.csv"
@@ -53,7 +53,7 @@ for file_name in target_files:
     full_path = os.path.join(script_dir, file_name)
     if os.path.exists(full_path):
         df_list.append(pd.read_csv(full_path))
-        print(f"  ✓ {file_name} ({len(df_list[-1])} 行)")
+        print(f" {file_name} ({len(df_list[-1])} 行)")
 
 df_combined = pd.concat(df_list, axis=0, ignore_index=True)
 df_combined['上榜时间'] = pd.to_datetime(df_combined['上榜时间'], errors='coerce')
@@ -61,7 +61,7 @@ df_combined['年份'] = df_combined['上榜时间'].dt.year.fillna("未知").ast
 df_cleaned = df_combined.copy()
 print(f"合并完成: {len(df_cleaned)} 行")
 
-# ---- 2. 批量调用 LLM 分类（断点续传） ----
+#  2. 批量调用 LLM 分类（断点续传） 
 unique_topics = df_cleaned['词条名'].dropna().unique().tolist()
 print(f"待分类词条: {len(unique_topics)}")
 
@@ -110,7 +110,7 @@ for i in range(0, len(unique_topics), BATCH_SIZE):
         json.dump(name_to_category, f, ensure_ascii=False, indent=4)
     time.sleep(0.4)
 
-# ---- 3. 注入标签并输出总表 ----
+#  3. 注入标签并输出总表 
 df_cleaned['事件类型'] = df_cleaned['词条名'].map(name_to_category).fillna("其他")
 front_cols = ['词条名', '年份', '事件类型', '上榜时间', '最后在榜时间', '在榜共计', '热度最大值', '半衰期_秒']
 remain_cols = [c for c in df_cleaned.columns if c not in front_cols]

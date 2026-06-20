@@ -12,9 +12,8 @@ matplotlib.rcParams['axes.unicode_minus'] = False
 
 CSV_PATH = "weibo_hotsearch_2019.csv"
 
-# ============================================================
+
 # 1. 展开全量 (hour, heat) 对
-# ============================================================
 TIME_FMT = "%Y-%m-%d %H:%M:%S"
 hour_heats = defaultdict(list)   # hour -> [heat, ...]
 hour_names = defaultdict(set)    # hour -> {unique topic names}
@@ -45,9 +44,8 @@ with open(CSV_PATH, encoding='utf-8-sig') as f:
 print(f"全量时间-热度对: {total_pairs}")
 print(f"覆盖小时: {sorted(hour_heats.keys())}")
 
-# ============================================================
+
 # 2. 按小时聚合
-# ============================================================
 hours = np.arange(24)
 avg_heat = np.zeros(24)
 total_heat = np.zeros(24)
@@ -70,9 +68,8 @@ print("-" * 40)
 for h in range(24):
     print(f"  {h:02d}:00  {avg_heat[h]:>10.0f}  {total_heat[h]/1e6:>8.1f}M  {count[h]:>8,d}")
 
-# ============================================================
+
 # 3. 双轴图
-# ============================================================
 fig, ax1 = plt.subplots(figsize=(14, 6))
 
 color1 = 'steelblue'

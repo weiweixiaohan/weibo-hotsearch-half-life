@@ -28,9 +28,8 @@ def year_group(y):
     return y
 
 
-# ============================================================
+
 # 1. 加载全七年
-# ============================================================
 def parse_duration(text):
     """ '3时15分2秒' → 秒数 """
     try:
@@ -88,9 +87,8 @@ for yg in YEAR_GROUPS:
     n = sum(1 for t in all_topics if t['ygroup'] == yg)
     print(f"  {yg}: {n} 条")
 
-# ============================================================
+
 # 2. 显著性检验（函数）
-# ============================================================
 def run_stats(groups, year_label):
     """groups: {slot: [values]}"""
     slots_present = [s for s in range(4) if len(groups.get(s, [])) >= 5]
@@ -104,9 +102,8 @@ def run_stats(groups, year_label):
     return ""
 
 
-# ============================================================
+
 # 3. 可视化 (3x3)
-# ============================================================
 fig, axes = plt.subplots(3, 3, figsize=(18, 16))
 
 # --- Row 1: 在榜时长---
@@ -235,7 +232,7 @@ ax.text(0.05, 0.95, '半衰期 显著性\n(Kruskal-Wallis)\n\n' + '\n'.join(stat
         transform=ax.transAxes, fontsize=9, va='top', fontfamily='monospace')
 ax.set_title('显著性检验')
 
-# ============================================================
+
 plt.suptitle(f'词条启动时段探索 v2 — 全七年 — 在榜时长 & 热度峰值 & 半衰期 (在榜<{MAX_DUR_H}h)',
              fontsize=14, y=1.01)
 plt.tight_layout()
@@ -243,9 +240,8 @@ out = 'topic_start_exploration.png'
 plt.savefig(out, dpi=150, bbox_inches='tight')
 print(f"\n图表已保存: {out}")
 
-# ============================================================
+
 # 打印数值表
-# ============================================================
 print(f"\n{'='*70}")
 print("在榜时长中位数 (h)")
 print(f"{'年份':>10s}  {'凌晨':>6s}  {'上午':>6s}  {'下午':>6s}  {'晚上':>6s}")
